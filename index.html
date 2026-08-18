@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HerBrowser // Forever.Com</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Great+Vibes&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --browser-bg: #131015;
+            --tab-bg: #1c171f;
+            --active-tab: #2b212b;
+            --url-bar: #0d0a10;
+            --text-primary: #f2e9e4;
+            --text-secondary: #b5a19d;
+            --accent-pink: #ff758c;
+            --accent-rose: #ff7eb3;
+            --border-glow: rgba(255, 117, 140, 0.3);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #080609;
+            color: var(--text-primary);
+            font-family: 'Montserrat', sans-serif;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Floating Background Animation */
+        .bg-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            background: radial-gradient(circle at center, #1c1018 0%, #080609 100%);
+        }
+
+        .particle {
+            position: absolute;
+            background: var(--accent-rose);
+            border-radius: 50%;
+            animation: floatUp 8s infinite linear;
+            opacity: 0.25;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(105vh) scale(0); opacity: 0; }
+            50% { opacity: 0.5; }
+            100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+        }
+
+        /* Browser Window Frame */
+        .browser-window {
+            position: relative;
+            z-index: 10;
+            width: 92%;
+            max-width: 850px;
+            height: 85vh;
+            background: var(--browser-bg);
+            border: 1px solid var(--border-glow);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 30px rgba(255, 117, 140, 0.15);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Top Browser Bar (Tabs & Window Controls) */
+        .browser-top-bar {
+            background: #0a080c;
+            padding: 10px 12px 0 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .window-controls-and-tabs {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .mac-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        .dot-red { background: #ff5f56; }
+        .dot-yellow { background: #ffbd2e; }
+        .dot-green { background: #27c93f; }
+
+        .browser-tab {
+            background: var(--active-tab);
+            padding: 6px 18px;
+            border-radius: 8px 8px 0 0;
+            font-size: 0.85rem;
+            color: var(--accent-rose);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-top: 2px solid var(--accent-pink);
+            letter-spacing: 0.5px;
+        }
+
+        /* Navigation Bar (Back, Forward, URL) */
+        .browser-nav-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 10px;
+        }
+
+        .nav-icon-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1rem;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .nav-icon-btn:hover {
+            background: rgba(255,255,255,0.08);
+            color: var(--text-primary);
+        }
+
+        .url-bar {
+            flex-grow: 1;
+            background: var(--url-bar);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 6px 15px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.85rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .url-bar span {
+            color: var(--accent-pink);
+        }
+
+        /* Bookmarks Bar */
+        .bookmarks-bar {
+            background: #0f0c12;
+            padding: 6px 15px;
+            display: flex;
+            gap: 15px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            overflow-x: auto;
+        }
+
+        .bookmark {
+            cursor: pointer;
+            transition: color 0.2s;
+            white-space: nowrap;
+        }
+
+        .bookmark:hover {
+            color: var(--accent-rose);
+        }
+
+        /* Browser Viewport (Main Content Area) */
+        .browser-viewport {
+            flex-grow: 1;
+            padding: 40px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background: radial-gradient(circle at top right, rgba(255,117,140,0.05), transparent 50%);
+        }
+
+        .letter-container {
+            max-width: 650px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .page-counter {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--accent-pink);
+            margin-bottom: 10px;
+        }
+
+        .letter-title {
+            font-family: 'Great Vibes', cursive;
+            font-size: 3rem;
+            color: var(--accent-rose);
+            margin-bottom: 20px;
+        }
+
+        .letter-body {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.3rem;
+            line-height: 1.8;
+            color: var(--text-primary);
+            min-height: 180px;
+        }
+
+        /* Bottom Browser Pagination / Controls */
+        .browser-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 20px;
+            margin-top: 30px;
+        }
+
+        .browser-btn {
+            background: linear-gradient(135deg, var(--accent-pink), #ff416c);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 12px rgba(255, 117, 140, 0.3);
+        }
+
+        .browser-btn:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 15px rgba(255, 117, 140, 0.5);
+        }
+
+        .browser-btn:disabled {
+            background: #2a2026;
+            color: #55444e;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        .jump-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .jump-input {
+            width: 50px;
+            background: #0d0a10;
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white;
+            padding: 5px;
+            text-align: center;
+            border-radius: 6px;
+            font-family: 'Montserrat', sans-serif;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Background Animation Particles -->
+    <div class="bg-particles" id="particles"></div>
+
+    <!-- Browser Simulator Wrapper -->
+    <div class="browser-window">
+        
+        <!-- Top Controls & Active Tab -->
+        <div class="browser-top-bar">
+            <div class="window-controls-and-tabs">
+                <div class="mac-dots">
+                    <div class="dot dot-red"></div>
+                    <div class="dot dot-yellow"></div>
+                    <div class="dot dot-green"></div>
+                </div>
+                <div class="browser-tab">
+                    <span>🔒</span> ToMyFavoriteGirl.love / page-<span id="tab-page-num">1</span>
+                </div>
+            </div>
+
+            <!-- Navigation & URL Box -->
+            <div class="browser-nav-bar">
+                <button class="nav-icon-btn" onclick="changePage(-1)">←</button>
+                <button class="nav-icon-btn" onclick="changePage(1)">→</button>
+                <button class="nav-icon-btn" onclick="renderPage()">⟳</button>
+                <div class="url-bar">
+                    <span>https://</span><span id="url-text">my-heart.love/letters/page-1</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bookmarks Bar Shortcuts -->
+        <div class="bookmarks-bar">
+            <span class="bookmark" onclick="jumpTo(1)">💌 Welcome</span>
+            <span class="bookmark" onclick="jumpTo(25)">🌹 Memories</span>
+            <span class="bookmark" onclick="jumpTo(50)">✨ Reasons I Love You</span>
+            <span class="bookmark" onclick="jumpTo(75)">💖 Future Dreams</span>
+            <span class="bookmark" onclick="jumpTo(100)">💍 Forever Note</span>
+        </div>
+
+        <!-- Main Content Viewport -->
+        <div class="browser-viewport">
+            <div class="letter-container">
+                <div class="page-counter" id="page-counter">Tab 1 of 100</div>
+                <div class="letter-title" id="letter-title">My Dearest Love</div>
+                <div class="letter-body" id="letter-body">
+                    Loading our story...
+                </div>
+            </div>
+
+            <!-- Bottom Controls -->
+            <div class="browser-footer">
+                <button class="browser-btn" id="prev-btn" onclick="changePage(-1)">Previous Tab</button>
+                
+                <div class="jump-box">
+                    <span>Go to Tab:</span>
+                    <input type="number" id="jump-input" class="jump-input" min="1" max="100" placeholder="1">
+                    <button class="browser-btn" style="padding: 5px 12px; font-size: 0.8rem;" onclick="handleJumpButton()">Go</button>
+                </div>
+
+                <button class="browser-btn" id="next-btn" onclick="changePage(1)">Next Tab</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Generate Background Particles
+        const particlesContainer = document.getElementById('particles');
+        for (let i = 0; i < 35; i++) {
+            const particle = document.createElement('div');
+            particle.classList.add('particle');
+            const size = Math.random() * 5 + 2;
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+            particle.style.left = `${Math.random() * 100}%`;
+            particle.style.animationDuration = `${Math.random() * 7 + 4}s`;
+            particle.style.animationDelay = `${Math.random() * 5}s`;
+            particlesContainer.appendChild(particle);
+        }
+
+        // 100-Page Letter Database for the Browser
+        const browserDatabase = [];
+        const titles = [
+            "Where It All Began", "Your Sweet Smile", "A Million Little Things", 
+            "My Safe Place", "Random Thoughts of You", "Forever & Always"
+        ];
+
+        for (let i = 1; i <= 100; i++) {
+            let titleText = titles[(i - 1) % titles.length];
+            if (i === 1) titleText = "Welcome to My Heart";
+            if (i === 100) titleText = "Endless Chapters With You";
+
+            let content = "";
+            if (i === 1) {
+                content = `Welcome to your private browser tab network. I created all 100 pages here because standard letters weren't enough room to hold how much you mean to me.<br><br>Use the top navigation bar, bookmarks, or next buttons to browse through your personal letters whenever you miss me.`;
+            } else if (i === 100) {
+                content = `You've reached tab number 100, the final page of this browser session—but our story is only getting started.<br><br>Thank you for being my greatest adventure, my peace, and my absolute favorite person in the entire universe. I love you endlessly.`;
+            } else {
+                content = `Tab memorandum entry #${i}:<br><br>Every second spent loving you feels like visiting a place I've always wanted to be. Your laugh brightens up even the heaviest days, and your hand is my favorite place to hold.<br><br><em>Just a reminder today: you are deeply cherished, endlessly appreciated, and thoroughly adored.</em>`;
+            }
+            
+            browserDatabase.push({ title: titleText, body: content });
+        }
+
+        let currentTab = 1;
+
+        function renderPage() {
+            const data = browserDatabase[currentTab - 1];
+            
+            // Update browser chrome elements
+            document.getElementById('tab-page-num').innerText = currentTab;
+            document.getElementById('url-text').innerText = `my-heart.love/letters/page-${currentTab}`;
+            document.getElementById('page-counter').innerText = `Tab ${currentTab} of 100`;
+            document.getElementById('letter-title').innerText = data.title;
+            
+            const bodyEl = document.getElementById('letter-body');
+            bodyEl.style.opacity = 0;
+            setTimeout(() => {
+                bodyEl.innerHTML = data.body;
+                bodyEl.style.opacity = 1;
+                bodyEl.style.transition = "opacity 0.3s ease";
+            }, 150);
+
+            // Button controls state
+            document.getElementById('prev-btn').disabled = currentTab === 1;
+            document.getElementById('next-btn').disabled = currentTab === 100;
+        }
+
+        function changePage(direction) {
+            if (currentTab + direction >= 1 && currentTab + direction <= 100) {
+                currentTab += direction;
+                renderPage();
+            }
+        }
+
+        function jumpTo(pageNum) {
+            if (pageNum >= 1 && pageNum <= 100) {
+                currentTab = pageNum;
+                renderPage();
+            }
+        }
+
+        function handleJumpButton() {
+            const input = document.getElementById('jump-input');
+            const val = parseInt(input.value);
+            if (val >= 1 && val <= 100) {
+                jumpTo(val);
+                input.value = '';
+            } else {
+                alert('Please enter a tab number between 1 and 100.');
+            }
+        }
+
+        // Initialize first render
+        renderPage();
+    </script>
+</body>
+</html>
